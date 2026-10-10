@@ -99,8 +99,7 @@ strong { font-weight: 700; }
 .dpill .m { display: block; font: 600 .62rem var(--f-display); color: var(--muted); letter-spacing: .05em; }
 .dpill[aria-current="true"] { background: var(--cc); }
 .dpill[aria-current="true"] .w, .dpill[aria-current="true"] .d, .dpill[aria-current="true"] .m { color: #fff; }
-.dpill.move::before { content: "→"; position: absolute; top: 3px; right: 5px; font: 700 .62rem var(--f-display); color: var(--muted); }
-.dpill[aria-current="true"].move::before { color: rgb(255 255 255 / .8); }
+.dpill.move::before { content: attr(data-icon); position: absolute; top: 2px; right: 3px; font-size: .62rem; line-height: 1; }
 
 /* ---------- layout ---------- */
 .layout { display: block; padding-block: 16px 60px; }
@@ -468,6 +467,7 @@ function dayParts(d) {
 }
 const cityOf = d => CITY[d.city] || { short: '', c: 'var(--muted)' };
 const isMove = d => !!d.transfer || d.date === '2.11';
+const moveIcon = d => d.date === '2.11' ? '✈️' : !d.transfer ? '' : /KTX|🚄/.test(d.transfer.split('\n')[0]) ? '🚄' : '🚌';
 const pickDoc = d => S.picks['p-' + d.date.replace('.', '-')] || {};
 const pickId = d => 'p-' + d.date.replace('.', '-');
 const dayNo = i => i + 1;
@@ -719,7 +719,7 @@ function render() {
   const strip = document.getElementById('strip');
   strip.hidden = tab !== 'dani';
   strip.innerHTML = days.map((d, i) => { const dp = dayParts(d);
-    return `<button class="dpill${isMove(d) ? ' move' : ''}" style="--cc:${cityOf(d).c}" data-act="go" data-i="${i}" aria-current="${i === cur}" aria-label="${esc(dp.wd + ' ' + dp.dt + ' ' + dp.title)}"><span class="w">${esc(dp.wd)}</span><span class="d">${dp.dt.split('.')[0]}</span><span class="m">${dp.dt.split('.')[1]}.</span></button>`; }).join('');
+    return `<button class="dpill${isMove(d) ? ' move' : ''}" data-icon="${moveIcon(d)}" style="--cc:${cityOf(d).c}" data-act="go" data-i="${i}" aria-current="${i === cur}" aria-label="${esc(dp.wd + ' ' + dp.dt + ' ' + dp.title)}"><span class="w">${esc(dp.wd)}</span><span class="d">${dp.dt.split('.')[0]}</span><span class="m">${dp.dt.split('.')[1]}.</span></button>`; }).join('');
   let lastCity = null;
   document.getElementById('rail').innerHTML = days.map((d, i) => { const dp = dayParts(d); const c = cityOf(d);
     const head = d.city !== lastCity ? `<div class="city" style="--cc:${c.c}">${c.short}</div>` : ''; lastCity = d.city;
