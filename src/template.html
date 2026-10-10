@@ -210,13 +210,12 @@ button.row { cursor: pointer; border-radius: 10px; }
 .txt p { margin: 0; }
 .chev { font: 600 1rem var(--f-display); color: var(--muted); transition: transform .15s; padding-top: 1px; }
 li.open .chev { transform: rotate(90deg); }
-li.open > .row { background: var(--sunk); border-radius: 10px 10px 0 0; }
 .chips { display: flex; flex-wrap: nowrap; gap: 4px; margin-top: 4px; overflow: hidden; }
 .chips.wrap { flex-wrap: wrap; }
 .chip { font: 600 .68rem/1.5 var(--f-display); letter-spacing: .05em; padding: 0 7px; border-radius: 999px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
 .chip.alt { background: var(--accent-soft); color: var(--accent); }
 .chip.pick { background: var(--ok-soft); color: var(--ok); text-transform: none; letter-spacing: 0; font-family: var(--f-body); font-size: .74rem; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
-.detail { cursor: pointer; margin: 0 8px 10px; padding: 12px 12px 14px 62px; display: grid; gap: 12px; background: var(--sunk); border-radius: 0 0 10px 10px; }
+.detail { cursor: pointer; margin: 0 8px 10px; padding: 12px 12px 14px 62px; display: grid; gap: 12px; background: var(--sunk); border-radius: 10px; }
 @media (max-width: 560px) { .detail { padding-left: 10px; } }
 .detail .md { font-size: .9rem; max-width: 72ch; }
 .dtitle { font: 700 1.2rem/1.2 var(--f-display); margin: 0; text-transform: uppercase; letter-spacing: .03em; color: var(--navy); }
