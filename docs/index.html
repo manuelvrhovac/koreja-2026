@@ -660,8 +660,7 @@ function dayView() {
 /* ---------- other pages ---------- */
 function pregled() {
   return `<section class="page pregled"><div class="hero"><img src="map.webp" alt="Karta Južne Koreje s bazama Seoul, Sokcho, Gyeongju i Busan te rutama između njih" width="872" height="1199"></div>
-    <p class="hand">Pet gradova. Četiri selidbe. Jedna nezaboravna avantura.</p><h2>Pregled</h2><div class="md intro">${md(D.header.split('\n').filter(l => !/^#/.test(l)).join('\n'))}</div>
-    <div class="sect">${inline(D.bases)}</div>
+    <h2>Pregled</h2>
     <ul class="flash">${days.map((d, i) => { const dp = dayParts(d); const c = cityOf(d);
       const lab = d.flash ? d.flash.label : ''; const m = lab.match(/·\s*(.+?)\s+—\s+(.+)$/);
       const short = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : dp.title;
@@ -699,9 +698,15 @@ function rezervacije() {
         <div class="who"><span class="lab">Tko:</span>${x.who && x.who !== '✅' ? `<span class="badge">${inline(x.who)}</span>` : ''}${PEOPLE.map(p => `<button class="${s.who === p ? 'on' : ''}" data-act="who" data-id="${x.id}" data-p="${p}" ${dis}>${p}</button>`).join('')}</div>
       </div>`; }).join('')}</div></section>`;
 }
+function legend() {
+  const line = D.header.split('\n').find(l => /^\*\*Oznake:\*\*/.test(l)) || '';
+  const items = line.replace(/^\*\*Oznake:\*\*\s*/, '').split(' · ').map(x => x.trim()).filter(Boolean);
+  const meta = D.header.split('\n').filter(l => l.trim() && !/^#|^\*\*Oznake|^-{2,}$/.test(l)).join('\n');
+  return `<details class="fold" open><summary>Oznake</summary><div class="md">${meta ? md(meta) : ''}<ul>${items.map(x => `<li>${inline(x)}</li>`).join('')}</ul><p>${inline(D.bases)}</p></div></details>`;
+}
 function info() {
-  return `<section class="page"><h2>Info</h2><p class="intro">Tko smo, prijevoz, usputne stanice, što je izrezano i otvorena pitanja.</p><div class="stack">${
-    D.info.map((x, i) => `<details class="fold"${i === 0 ? ' open' : ''}><summary>${inline(x.title)}</summary><div class="md">${md(x.md)}</div></details>`).join('')}</div></section>`;
+  return `<section class="page"><h2>Info</h2><p class="intro">Oznake, tko smo, prijevoz, usputne stanice, što je izrezano i otvorena pitanja.</p><div class="stack">${legend()}${
+    D.info.map((x, i) => `<details class="fold"><summary>${inline(x.title)}</summary><div class="md">${md(x.md)}</div></details>`).join('')}</div></section>`;
 }
 
 /* ---------- shell ---------- */
