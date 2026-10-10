@@ -277,17 +277,17 @@ a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .
 .hand { font: 500 1.35rem/1.25 var(--f-hand); color: var(--hand); margin: 0 0 14px; }
 .flash { list-style: none; padding: 0; margin: 0; display: grid; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); position: relative; padding-block: 4px; }
 .flash::before { content: ""; position: absolute; left: 25px; top: 14px; bottom: 14px; width: 2px; background: var(--line); }
-.flash button { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; padding: 12px 14px 12px 46px; background: none; border: 0; text-align: left; width: 100%; cursor: pointer; position: relative; border-radius: 10px; }
-.flash button:hover { background: var(--sunk); }
-.flash button::before { content: ""; position: absolute; left: 19px; top: 17px; width: 10px; height: 10px; border-radius: 50%; background: var(--cc); border: 2px solid var(--surface); }
+.flash > li > button { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; padding: 12px 14px 12px 46px; background: none; border: 0; text-align: left; width: 100%; cursor: pointer; position: relative; border-radius: 10px; }
+.flash > li > button:hover { background: var(--sunk); }
+.flash > li > button::before { content: ""; position: absolute; left: 19px; top: 17px; width: 10px; height: 10px; border-radius: 50%; background: var(--cc); border: 2px solid var(--surface); }
 .flash .fd { font: 800 1rem/1.25 var(--f-display); color: var(--cc); letter-spacing: .03em; }
 .flash .fd small { display: block; font-size: .72rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
 .flash .ft { font-size: .9rem; font-weight: 600; }
-.flash button { grid-template-columns: 76px minmax(0, 1fr) auto; }
+.flash > li > button { grid-template-columns: 76px minmax(0, 1fr) auto; }
 .flash li.open > button { background: var(--sunk); }
 .flash li.open .chev { transform: rotate(90deg); }
-.flash .fx { position: relative; z-index: 1; margin: 0 8px 8px 46px; padding: 10px 12px; display: grid; gap: 8px; font-size: .9rem; line-height: 1.55; background: var(--surface); border-radius: 10px; box-shadow: inset 3px 0 0 var(--cc); }
-.flash .fx p { margin: 0; }
+.flash .fx { position: relative; z-index: 1; margin: 0 8px 10px; padding: 8px 10px; display: grid; gap: 8px; font-size: .9rem; line-height: 1.55; background: var(--surface); }
+.flash .fx ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
 .flash .fx .linkday { justify-self: start; }
 .list { display: grid; gap: 10px; }
 .item { border-radius: 12px; background: var(--surface); padding: 12px 14px; display: grid; gap: 6px; box-shadow: 0 1px 0 var(--line); }
@@ -658,6 +658,13 @@ function dayView() {
 }
 
 /* ---------- other pages ---------- */
+function bullets(text) {
+  const sent = text.split(/(?<=[.!?])\s+(?=[A-ZŠĐČĆŽ🔒💸⚠️*])/).map(x => x.trim()).filter(Boolean);
+  const k = Math.min(5, Math.max(2, Math.ceil(sent.length / 2)));
+  const per = Math.ceil(sent.length / k), groups = [];
+  for (let i = 0; i < sent.length; i += per) groups.push(sent.slice(i, i + per).join(' '));
+  return `<ul>${groups.map(g => `<li>${inline(g)}</li>`).join('')}</ul>`;
+}
 function pregled() {
   return `<section class="page pregled"><div class="hero"><img src="map.webp" alt="Karta Južne Koreje s bazama Seoul, Sokcho, Gyeongju i Busan te rutama između njih" width="872" height="1199"></div>
     <h2>Pregled</h2>
@@ -666,7 +673,7 @@ function pregled() {
       const short = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : dp.title;
       const open = flashOpen.has(i);
       return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}</span><span class="chev">›</span></button>
-        ${open ? `<div class="fx"><p>${d.flash ? inline(d.flash.text) : ''}</p><button class="linkday" data-act="go" data-i="${i}">Otvori dan →</button></div>` : ''}</li>`; }).join('')}</ul>
+        ${open ? `<div class="fx">${d.flash ? bullets(d.flash.text) : ''}<button class="linkday" data-act="go" data-i="${i}">Otvori dan →</button></div>` : ''}</li>`; }).join('')}</ul>
     ${D.flashNotes ? `<div class="sect">Prije puta</div><div class="md">${md(D.flashNotes)}</div>` : ''}
     <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj.split('\n').filter(l => /^\|/.test(l)).join('\n'))}</div></section>`;
 }
