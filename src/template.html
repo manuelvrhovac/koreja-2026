@@ -246,6 +246,9 @@ li.plancard { padding: 10px 8px; }
 .pickbtn { align-self: flex-start; margin-top: 4px; border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 11px; font-size: .78rem; cursor: pointer; color: var(--muted); }
 .pickbtn.on { background: var(--ok); border-color: var(--ok); color: #fff; }
 .pickbtn:disabled { opacity: .5; cursor: not-allowed; }
+.nvpill { justify-self: start; display: inline-flex; align-items: center; gap: 6px; background: #03c75a; color: #fff; text-decoration: none; border-radius: 999px; padding: 6px 14px; font: 700 .82rem var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.chip.nvchip { background: #03c75a; color: #fff; text-decoration: none; }
+a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .08em; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
 .anote { font-size: .82rem; color: var(--muted); margin: 0; }
 
 /* triggers */
@@ -478,6 +481,40 @@ function slotAlts(d, slot, slotKey) {
   return `<div class="alts"><div class="ah">↔ Zamjene (${slot.alts.length})</div><div class="cards">${cards}</div>
     ${slot.altNotes.map(n => `<p class="anote">${inline(n)}</p>`).join('')}</div>`;
 }
+/* Naver Map deep links (iOS app). Keyed by day → slot time; `main` gets a pill, `subs` get inline NAVER links after the first mention of `name` in the slot's details. Best-guess search queries, not verified addresses. */
+const NV = 'appname=com.sokogeo';
+const nvSearch = q => `nmap://search?query=${encodeURIComponent(q)}&${NV}`;
+const LOC = {
+  '19.10': {
+    '12:30': { main: { label: 'ICN T2', q: '인천국제공항 제2여객터미널' } },
+    '14:15': { main: { label: 'Seoul Station', q: '서울역' }, subs: [{ name: 'AREX', q: '서울역 공항철도' }] },
+    '15:30': { main: { label: 'Apartman', url: `nmap://place?lat=37.576026&lng=127.006617&name=Seoul%20I%20Apartment&${NV}` } },
+    '17:30': { main: { label: 'Gwangjang', q: '광장시장' } },
+    '19:00': { main: { label: 'Golfzon Myeongdong', q: '골프존파크 명동역점' }, subs: [
+      { name: 'Golfzon Park Euljiro Signature', q: '골프존파크 을지로 시그니처' },
+      { name: 'Strikezon Jongno', q: '스트라이크존 종로' },
+      { name: 'Smashing Bowl', q: '스매싱볼 홍대' }, { name: 'Taehwa', q: '태화볼링장 홍대' },
+      { name: 'Real Axe', q: '리얼액스' }, { name: 'Rage room', q: '분노방 홍대' },
+      { name: 'VR Square', q: 'VR스퀘어 홍대' }, { name: 'Show Me the VR', q: '쇼미더VR 홍대' },
+    ] },
+    '21:00': { main: { label: 'Nogari Alley', q: '을지로 노가리골목' }, subs: [
+      { name: 'Eulji OB Bear', q: '을지OB베어' }, { name: 'Manseon Hof', q: '만선호프' },
+      { name: 'Jongno 3-ga pojangmacha', q: '종로3가 포장마차거리' }, { name: 'Podrum Shinsegaea', q: '신세계백화점 본점 푸드마켓' },
+    ] },
+    '23:00': { main: { label: 'Ace Four Club', q: '에이스포클럽' }, subs: [
+      { name: 'Jin Ok-hwa dakhanmari', q: '진옥화할매원조닭한마리' }, { name: 'Jongno 3-ga pojangmacha', q: '종로3가 포장마차거리' },
+    ] },
+  },
+};
+const nvHref = m => m.url || nvSearch(m.q);
+function nvPill(m) { return `<a class="nvpill" href="${esc(nvHref(m))}">📍 Open in Naver · ${esc(m.label)}</a>`; }
+function nvInline(html, subs) {
+  (subs || []).forEach(x => {
+    const i = html.indexOf(esc(x.name));
+    if (i >= 0) { const j = i + esc(x.name).length; html = html.slice(0, j) + ` <a class="nv" href="${esc(nvSearch(x.q))}">NAVER</a>` + html.slice(j); }
+  });
+  return html;
+}
 function shortMeta(m) {
   m = m.replace(/\s*\([^)]*\)/g, '').trim();
   if (/^⏱/.test(m)) {
@@ -498,6 +535,8 @@ function rowHTML(d, r, key, opts = {}) {
   if (slot) slot.meta.forEach(m => { const t = shortMeta(m); if (t) chips.push(`<span class="chip" title="${esc(m)}">${inline(t)}</span>`); });
   if (slot && slot.alts.length) chips.push(`<span class="chip alt">↔ ${slot.alts.length}</span>`);
   if (chosen) chips.push(`<span class="chip pick">✓ ${inline(chosen.title)}</span>`);
+  const loc = (LOC[d.date] || {})[r.key];
+  if (loc && loc.main) chips.push(`<a class="chip nvchip" href="${esc(nvHref(loc.main))}">📍 Naver</a>`);
   const timeSoft = !/\d/.test(r.time);
   const inner = `<span class="time${timeSoft ? ' soft' : ''}">${inline(r.time.replace(/^~/, ''))}</span>
     <span class="txt"><p>${inline(r.text)}</p>${chips.length ? `<span class="chips">${chips.join('')}</span>` : ''}</span>
@@ -507,12 +546,14 @@ function rowHTML(d, r, key, opts = {}) {
     : `<div class="row">${inner}</div>`;
   const det = open ? `<div class="detail">
       <h3 class="dtitle">${inline(slot.title)}</h3>
+      ${loc && loc.main ? nvPill(loc.main) : ''}
       ${slot.meta.length ? `<div class="chips wrap">${slot.meta.map(m => `<span class="chip">${inline(m)}</span>`).join('')}</div>` : ''}
       ${slot.body ? `<div class="md">${md(slot.body)}</div>` : ''}
       ${slotAlts(d, slot, key)}
       ${slot.after ? `<div class="md">${md(slot.after)}</div>` : ''}
     </div>` : '';
-  return `<li class="${open ? 'open' : ''}${opts.gone ? ' gone' : ''}">${row}${det}</li>`;
+  const detL = loc ? nvInline(det, loc.subs) : det;
+  return `<li class="${open ? 'open' : ''}${opts.gone ? ' gone' : ''}">${row}${detL}</li>`;
 }
 function planCard(d, p) {
   const det = p.detail;
