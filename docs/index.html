@@ -486,23 +486,23 @@ const NV = 'appname=com.sokogeo';
 const nvSearch = q => `nmap://search?query=${encodeURIComponent(q)}&${NV}`;
 const LOC = {
   '19.10': {
-    '12:30': { main: { label: 'ICN T2', q: '인천국제공항 제2여객터미널' } },
-    '14:15': { main: { label: 'Seoul Station', q: '서울역' }, subs: [{ name: 'AREX', q: '서울역 공항철도' }] },
+    '12:30': { main: { label: 'ICN T2', q: 'Incheon Airport Terminal 2' } },
+    '14:15': { main: { label: 'Seoul Station', q: 'Seoul Station' }, subs: [{ name: 'AREX', q: 'AREX Seoul Station' }] },
     '15:30': { main: { label: 'Apartman', url: `nmap://place?lat=37.576026&lng=127.006617&name=Seoul%20I%20Apartment&${NV}` } },
-    '17:30': { main: { label: 'Gwangjang', q: '광장시장' } },
-    '19:00': { main: { label: 'Golfzon Myeongdong', q: '골프존파크 명동역점' }, subs: [
-      { name: 'Golfzon Park Euljiro Signature', q: '골프존파크 을지로 시그니처' },
-      { name: 'Strikezon Jongno', q: '스트라이크존 종로' },
-      { name: 'Smashing Bowl', q: '스매싱볼 홍대' }, { name: 'Taehwa', q: '태화볼링장 홍대' },
-      { name: 'Real Axe', q: '리얼액스' }, { name: 'Rage room', q: '분노방 홍대' },
-      { name: 'VR Square', q: 'VR스퀘어 홍대' }, { name: 'Show Me the VR', q: '쇼미더VR 홍대' },
+    '17:30': { main: { label: 'Gwangjang', q: 'Gwangjang Market' } },
+    '19:00': { main: { label: 'Golfzon Myeongdong', q: 'Golfzon Park Myeongdong' }, subs: [
+      { name: 'Golfzon Park Euljiro Signature', q: 'Golfzon Park Euljiro' },
+      { name: 'Strikezon Jongno', q: 'Strikezon Jongno' },
+      { name: 'Smashing Bowl', q: 'Smashing Bowl Hongdae' }, { name: 'Taehwa', q: 'Taehwa Bowling Hongdae' },
+      { name: 'Real Axe', q: 'Real Axe Throwing Seoul' }, { name: 'Rage room', q: 'Rage Room Hongdae' },
+      { name: 'VR Square', q: 'VR Square Hongdae' }, { name: 'Show Me the VR', q: 'Show Me The VR Hongdae' },
     ] },
-    '21:00': { main: { label: 'Nogari Alley', q: '을지로 노가리골목' }, subs: [
-      { name: 'Eulji OB Bear', q: '을지OB베어' }, { name: 'Manseon Hof', q: '만선호프' },
-      { name: 'Jongno 3-ga pojangmacha', q: '종로3가 포장마차거리' }, { name: 'Podrum Shinsegaea', q: '신세계백화점 본점 푸드마켓' },
+    '21:00': { main: { label: 'Nogari Alley', q: 'Nogari Alley Euljiro' }, subs: [
+      { name: 'Eulji OB Bear', q: 'Eulji OB Bear' }, { name: 'Manseon Hof', q: 'Manseon Hof' },
+      { name: 'Jongno 3-ga pojangmacha', q: 'Jongno 3-ga Pojangmacha' }, { name: 'Podrum Shinsegaea', q: 'Shinsegae Department Store Main' },
     ] },
-    '23:00': { main: { label: 'Ace Four Club', q: '에이스포클럽' }, subs: [
-      { name: 'Jin Ok-hwa dakhanmari', q: '진옥화할매원조닭한마리' }, { name: 'Jongno 3-ga pojangmacha', q: '종로3가 포장마차거리' },
+    '23:00': { main: { label: 'Ace Four Club', q: 'Ace Four Club' }, subs: [
+      { name: 'Jin Ok-hwa dakhanmari', q: 'Jin Ok Hwa Dakhanmari' }, { name: 'Jongno 3-ga pojangmacha', q: 'Jongno 3-ga Pojangmacha' },
     ] },
   },
 };
