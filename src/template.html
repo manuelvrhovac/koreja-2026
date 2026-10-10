@@ -467,7 +467,8 @@ const dayNo = i => i + 1;
 
 /* ---------- day view ---------- */
 function slotAlts(d, slot, slotKey) {
-  if (!slot || !slot.alts.length) return '';
+  if (!slot) return '';
+  if (!slot.alts.length) return slot.altNotes && slot.altNotes.length ? `<div class="alts"><div class="ah">↔ Zamjene</div>${slot.altNotes.map(n => `<p class="anote">${inline(n)}</p>`).join('')}</div>` : '';
   const pd = pickDoc(d); const chosen = (pd.slots || {})[slotKey];
   const cards = slot.alts.map((a, ai) => {
     const on = chosen === ai;
@@ -529,7 +530,7 @@ function rowHTML(d, r, key, opts = {}) {
   const slot = r.slot != null ? d.slots[r.slot] : null;
   const pd = pickDoc(d); const chosenIdx = slot ? (pd.slots || {})[key] : undefined;
   const chosen = slot && chosenIdx != null ? slot.alts[chosenIdx] : null;
-  const hasDetail = slot && (slot.body || slot.alts.length || slot.after);
+  const hasDetail = slot && (slot.body || slot.alts.length || slot.altNotes.length || slot.after);
   const open = hasDetail && openSlots.has(d.date + '|' + key);
   const chips = [];
   if (slot) slot.meta.forEach(m => { const t = shortMeta(m); if (t) chips.push(`<span class="chip" title="${esc(m)}">${inline(t)}</span>`); });

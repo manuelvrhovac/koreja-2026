@@ -10,7 +10,7 @@ Itinerar puta 19.10.–2.11.2026. kao statična web stranica.
 Nakon promjene plana:
 
 ```sh
-cp "$HOME/Library/Mobile Documents/com~apple~CloudDocs/SouKo Claude/Dokumenti/KorejaMain.md" content/
+cp "$HOME/Library/Mobile Documents/com~apple~CloudDocs/SouKo Claude/Dokumenti/"Koreja{Main,WIP}.md content/
 ./build.sh
 git commit -am "Update plan" && git push
 ```

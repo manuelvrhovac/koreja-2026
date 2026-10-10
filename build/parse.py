@@ -142,7 +142,10 @@ def parse_slot(head, lines):
     mode = 'body'
     for line in lines[i:]:
         if re.match(r'^\*\*↔ Zamjene', line):
-            mode = 'alts'; continue
+            mode = 'alts'
+            note = re.sub(r'^\*\*↔ Zamjene[^*]*\*\*\s*', '', line).strip()
+            if note: s['altNotes'].append(note)
+            continue
         if mode == 'body':
             body.append(line); continue
         if line.startswith('- **'):
@@ -284,6 +287,8 @@ for day in data['days']:
     cfg = PLANS.get(day['date'], [])
     for c in cfg:
         p = {'label': c['label'], 'replaces': c['replaces'], 'summary': '', 'detail': None, 'rows': None}
+        if c.get('altTable') and not alt_rows:
+            continue
         if c.get('altTable'):
             ar = [mkrow(r) for r in alt_rows]
             for r in ar:
@@ -320,6 +325,11 @@ for p in parts:
     elif t.startswith('DIO 4') or t.startswith('DODATAK'):
         data['info'].append({'id': slug(t.split('—')[0]), 'title': t, 'md': clean_md(p['lines'])})
 
+import os
+wip = os.path.join(os.path.dirname(sys.argv[1]), 'KorejaWIP.md')
+if os.path.exists(wip):
+    wl = open(wip, encoding='utf-8').read().split('\n')
+    data['info'].append({'id': 'wip', 'title': wl[0].lstrip('# ').strip(), 'md': clean_md(wl[1:])})
 ids = [r['id'] for r in data['reservations']] + [d['id'] for d in decisions]
 assert len(ids) == len(set(ids)), 'dup ids'
 json.dump(data, open(out_path, 'w', encoding='utf-8'), ensure_ascii=False)
