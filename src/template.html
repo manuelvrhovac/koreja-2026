@@ -668,7 +668,7 @@ function pregled() {
       return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}</span><span class="chev">›</span></button>
         ${open ? `<div class="fx"><p>${d.flash ? inline(d.flash.text) : ''}</p><button class="linkday" data-act="go" data-i="${i}">Otvori dan →</button></div>` : ''}</li>`; }).join('')}</ul>
     ${D.flashNotes ? `<div class="sect">Prije puta</div><div class="md">${md(D.flashNotes)}</div>` : ''}
-    <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj)}</div></section>`;
+    <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj.split('\n').filter(l => /^\|/.test(l)).join('\n'))}</div></section>`;
 }
 function roNote() { return `<div class="ro">Kvačice i imena pamte se samo u ovom pregledniku, ne dijele se s ekipom.</div>`; }
 let decFilter = 'sve';
