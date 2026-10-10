@@ -668,7 +668,7 @@ function bullets(text) {
 }
 function pregled() {
   return `<section class="page pregled"><div class="hero"><img src="map.webp" alt="Karta Južne Koreje s bazama Seoul, Sokcho, Gyeongju i Busan te rutama između njih" width="872" height="1199"></div>
-    <h2>Pregled</h2>
+    <h2>Itinerar</h2>
     <ul class="flash">${days.map((d, i) => { const dp = dayParts(d); const c = cityOf(d);
       const lab = d.flash ? d.flash.label : ''; const m = lab.match(/·\s*(.+?)\s+—\s+(.+)$/);
       const short = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : dp.title;
@@ -718,7 +718,7 @@ function info() {
 }
 
 /* ---------- shell ---------- */
-const TABS = [['pregled', 'Pregled'], ['dani', 'Dani'], ['odluke', 'Odluke'], ['rezervacije', 'Rezervacije'], ['info', 'Info']];
+const TABS = [['pregled', 'Itinerar'], ['dani', 'Raspored'], ['odluke', 'Odluke'], ['rezervacije', 'Rezervacije'], ['info', 'Info']];
 function render() {
   const openDetails = [...document.querySelectorAll('#main details')].map(x => x.open);
   const decOpen = D.decisions.filter(x => !(S.dec[x.id] || {}).done).length;
