@@ -283,7 +283,13 @@ a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .
 .flash button::before { content: ""; position: absolute; left: 19px; top: 17px; width: 10px; height: 10px; border-radius: 50%; background: var(--cc); border: 2px solid var(--surface); }
 .flash .fd { font: 800 1rem/1.25 var(--f-display); color: var(--cc); letter-spacing: .03em; }
 .flash .fd small { display: block; font-size: .72rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
-.flash .ft { font-size: .9rem; }
+.flash .ft { font-size: .9rem; font-weight: 600; }
+.flash button { grid-template-columns: 76px minmax(0, 1fr) auto; }
+.flash li.open > button { background: var(--sunk); }
+.flash li.open .chev { transform: rotate(90deg); }
+.flash .fx { position: relative; z-index: 1; margin: 0 8px 8px 46px; padding: 10px 12px; display: grid; gap: 8px; font-size: .9rem; line-height: 1.55; background: var(--surface); border-radius: 10px; box-shadow: inset 3px 0 0 var(--cc); }
+.flash .fx p { margin: 0; }
+.flash .fx .linkday { justify-self: start; }
 .list { display: grid; gap: 10px; }
 .item { border-radius: 12px; background: var(--surface); padding: 12px 14px; display: grid; gap: 6px; box-shadow: 0 1px 0 var(--line); }
 .item.done { background: var(--sunk); }
@@ -446,6 +452,7 @@ let cur = Math.max(0, Math.min(days.length - 1, store.get('day', 0)));
 const planView = store.get('planView', {});
 const openSlots = new Set();
 let qOpen = null;
+const flashOpen = new Set();
 (function fromHash() {
   const h = location.hash.slice(1);
   const m = h.match(/^dan-(\d+)-(\d+)$/);
@@ -656,7 +663,11 @@ function pregled() {
     <p class="hand">Pet gradova. Četiri selidbe. Jedna nezaboravna avantura.</p><h2>Pregled</h2><div class="md intro">${md(D.header.split('\n').filter(l => !/^#/.test(l)).join('\n'))}</div>
     <div class="sect">${inline(D.bases)}</div>
     <ul class="flash">${days.map((d, i) => { const dp = dayParts(d); const c = cityOf(d);
-      return `<li style="--cc:${c.c}"><button data-act="go" data-i="${i}"><span class="fd">${dp.wd} ${dp.dt}<small>${c.short}</small></span><span class="ft">${d.flash ? inline(d.flash.text) : inline(dp.title)}</span></button></li>`; }).join('')}</ul>
+      const lab = d.flash ? d.flash.label : ''; const m = lab.match(/·\s*(.+?)\s+—\s+(.+)$/);
+      const short = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : dp.title;
+      const open = flashOpen.has(i);
+      return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}</span><span class="chev">›</span></button>
+        ${open ? `<div class="fx"><p>${d.flash ? inline(d.flash.text) : ''}</p><button class="linkday" data-act="go" data-i="${i}">Otvori dan →</button></div>` : ''}</li>`; }).join('')}</ul>
     ${D.flashNotes ? `<div class="sect">Prije puta</div><div class="md">${md(D.flashNotes)}</div>` : ''}
     <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj)}</div></section>`;
 }
@@ -728,6 +739,7 @@ document.addEventListener('click', e => {
   const a = b.dataset.act; const d = days[cur];
   if (a === 'tab') { tab = b.dataset.t; store.set('tab', tab); history.replaceState(null, '', '#' + (tab === 'dani' ? 'dan-' + days[cur].date.replace('.', '-') : tab)); render(); if (tab === 'dani') scrollPillIntoView(); window.scrollTo({ top: 0 }); }
   else if (a === 'go') go(+b.dataset.i);
+  else if (a === 'flash') { const i = +b.dataset.i; flashOpen.has(i) ? flashOpen.delete(i) : flashOpen.add(i); render(); }
   else if (a === 'q') { qOpen = qOpen === b.dataset.k ? null : b.dataset.k; render(); }
   else if (a === 'slot') { const k = d.date + '|' + b.dataset.key; openSlots.has(k) ? openSlots.delete(k) : openSlots.add(k); render(); }
   else if (a === 'plan') { planView[d.date] = +b.dataset.i; store.set('planView', planView); openSlots.clear(); render(); }
