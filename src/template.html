@@ -204,7 +204,6 @@ details.fold > .md, details.fold > .inner { padding: 0 14px 12px; }
 .row { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 4px 6px; width: 100%; text-align: left; background: none; border: 0; padding: 9px 8px; cursor: default; align-items: start; position: relative; }
 .row::before { content: ""; position: absolute; left: 56px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--cc); }
 button.row { cursor: pointer; border-radius: 10px; }
-button.row:hover { background: var(--sunk); }
 .time { font: 700 .88rem/1.5 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: .03em; text-align: right; overflow-wrap: anywhere; }
 .time.soft { color: var(--muted); font-size: .62rem; line-height: 1.2; padding-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
 .txt { min-width: 0; font-size: .93rem; color: var(--ink); padding-left: 14px; }
@@ -217,7 +216,7 @@ li.open > .row { background: var(--sunk); border-radius: 10px 10px 0 0; }
 .chip { font: 600 .68rem/1.5 var(--f-display); letter-spacing: .05em; padding: 0 7px; border-radius: 999px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
 .chip.alt { background: var(--accent-soft); color: var(--accent); }
 .chip.pick { background: var(--ok-soft); color: var(--ok); text-transform: none; letter-spacing: 0; font-family: var(--f-body); font-size: .74rem; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
-.detail { margin: 0 8px 10px; padding: 12px 12px 14px 62px; display: grid; gap: 12px; background: var(--sunk); border-radius: 0 0 10px 10px; }
+.detail { cursor: pointer; margin: 0 8px 10px; padding: 12px 12px 14px 62px; display: grid; gap: 12px; background: var(--sunk); border-radius: 0 0 10px 10px; }
 @media (max-width: 560px) { .detail { padding-left: 10px; } }
 .detail .md { font-size: .9rem; max-width: 72ch; }
 .dtitle { font: 700 1.2rem/1.2 var(--f-display); margin: 0; text-transform: uppercase; letter-spacing: .03em; color: var(--navy); }
@@ -551,7 +550,7 @@ function rowHTML(d, r, key, opts = {}) {
   const row = hasDetail
     ? `<button class="row" data-act="slot" data-key="${esc(key)}" aria-expanded="${open}">${inner}</button>`
     : `<div class="row">${inner}</div>`;
-  const det = open ? `<div class="detail">
+  const det = open ? `<div class="detail" data-act="slot" data-key="${esc(key)}">
       <h3 class="dtitle">${inline(slot.title)}</h3>
       ${loc && loc.main ? nvPill(loc.main) : ''}
       ${slot.meta.length ? `<div class="chips wrap">${slot.meta.map(m => `<span class="chip">${inline(m)}</span>`).join('')}</div>` : ''}
@@ -753,9 +752,9 @@ document.addEventListener('click', e => {
   else if (a === 'go') go(+b.dataset.i);
   else if (a === 'flash') { const i = +b.dataset.i; const was = flashOpen.has(i); flashOpen.clear(); if (!was) flashOpen.add(i); render(); }
   else if (a === 'q') { qOpen = qOpen === b.dataset.k ? null : b.dataset.k; render(); }
-  else if (a === 'slot') { const k = d.date + '|' + b.dataset.key; openSlots.has(k) ? openSlots.delete(k) : openSlots.add(k); render(); }
+  else if (a === 'slot') { if (e.target.closest('.pickbtn')) return; const k = d.date + '|' + b.dataset.key; const was = openSlots.has(k); openSlots.clear(); if (!was) openSlots.add(k); render(); }
   else if (a === 'plan') { planView[d.date] = +b.dataset.i; store.set('planView', planView); openSlots.clear(); render(); }
-  else if (a === 'pickalt') { const pd = { ...pickDoc(d), slots: { ...(pickDoc(d).slots || {}) } }; const k = b.dataset.slot, i = +b.dataset.alt; pd.slots[k] = pd.slots[k] === i ? null : i; write('picks', pickId(d), pd); }
+  else if (a === 'pickalt') { e.stopPropagation(); const pd = { ...pickDoc(d), slots: { ...(pickDoc(d).slots || {}) } }; const k = b.dataset.slot, i = +b.dataset.alt; pd.slots[k] = pd.slots[k] === i ? null : i; write('picks', pickId(d), pd); }
   else if (a === 'dec') { const s = S.dec[b.dataset.id] || {}; write('dec', b.dataset.id, { ...s, done: !s.done }); }
   else if (a === 'res') { const s = S.res[b.dataset.id] || {}; write('res', b.dataset.id, { ...s, done: !s.done }); }
   else if (a === 'who') { const s = S.res[b.dataset.id] || {}; write('res', b.dataset.id, { ...s, who: s.who === b.dataset.p ? null : b.dataset.p }); }
