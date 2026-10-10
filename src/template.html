@@ -657,6 +657,7 @@ function pregled() {
     <div class="sect">${inline(D.bases)}</div>
     <ul class="flash">${days.map((d, i) => { const dp = dayParts(d); const c = cityOf(d);
       return `<li style="--cc:${c.c}"><button data-act="go" data-i="${i}"><span class="fd">${dp.wd} ${dp.dt}<small>${c.short}</small></span><span class="ft">${d.flash ? inline(d.flash.text) : inline(dp.title)}</span></button></li>`; }).join('')}</ul>
+    ${D.flashNotes ? `<div class="sect">Prije puta</div><div class="md">${md(D.flashNotes)}</div>` : ''}
     <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj)}</div></section>`;
 }
 function roNote() { return `<div class="ro">Kvačice i imena pamte se samo u ovom pregledniku, ne dijele se s ekipom.</div>`; }

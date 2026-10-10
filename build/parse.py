@@ -42,14 +42,18 @@ def clean_md(lines):
 data = {'header': clean_md(parts[0]['lines']), 'days': [], 'cities': {}, 'info': []}
 
 # --- Dio 1 flash
-flash, bases = {}, ''
+flash, bases, notes = {}, '', []
 for line in part('DIO 1')['lines']:
-    m = re.match(r'^\* \*\*(.+?)\*\* — (.*)$', line)
-    if m:
-        flash[date_key(m.group(1))] = {'label': m.group(1), 'text': m.group(2)}
+    m = re.match(r'^(?:\* )?\*\*(.+?)\*\* — (.*)$', line)
+    dk = date_key(m.group(1).replace(' ', '')) if m else None
+    if m and dk:
+        flash[dk] = {'label': m.group(1), 'text': m.group(2)}
     elif line.startswith('**Baze:**'):
         bases = line
+    elif line.strip() and not line.startswith('#'):
+        notes.append(line)
 data['bases'] = bases
+data['flashNotes'] = clean_md(notes)
 
 # --- Dio 2
 days, order = {}, []
