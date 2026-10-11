@@ -313,6 +313,11 @@ a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .
 .ro { font-size: .82rem; color: var(--muted); background: var(--sunk); padding: 8px 12px; border-radius: 10px; margin-bottom: 12px; }
 .linkday { border: 0; background: none; padding: 0; color: var(--accent); font: 700 .74rem var(--f-display); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes grow { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+main.anim > * { animation: fadein .22s ease-out both; }
+.detail, .fx, .qpanel { animation: grow .18s ease-out both; }
+.tab, .dpill, .qbtn, .seg button { transition: background-color .15s, color .15s; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
@@ -447,6 +452,7 @@ let cur = Math.max(0, Math.min(days.length - 1, store.get('day', 0)));
 const planView = store.get('planView', {});
 const openSlots = new Set();
 let qOpen = null;
+let animNext = true;
 const flashOpen = new Set();
 (function fromHash() {
   const h = location.hash.slice(1);
@@ -627,7 +633,7 @@ function dayView() {
     ['info', 'ℹ️', plain((d.transfer || d.stay).split('\n')[0])],
     ['upoz', '⚠️', plain(hot[0]).replace(/^ODLUK[^:]*:\s*/i, '')],
     ['nap', '📌', plain(rest[0] || (topInfo[0] || {}).title)],
-    ['odl', '⏰', decs.length ? `${decs.length - qdone}/${decs.length} otvoreno · ${decs.map(x => plain(x.what)).join(' · ')}` : ''],
+    ['odl', '✅', decs.length ? `TODO ${decs.length - qdone}/${decs.length} · ${decs.map(x => plain(x.what)).join(' · ')}` : ''],
   ].filter(([k]) => panels[k]);
   if (qOpen && !panels[qOpen]) qOpen = null;
   let h = `<article style="--cc:${city.c}">
@@ -670,7 +676,6 @@ function pregled() {
       const open = flashOpen.has(i);
       return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}</span><span class="chev">›</span></button>
         ${open ? `<div class="fx" data-act="flash" data-i="${i}">${d.flash ? bullets(d.flash.text) : ''}<a class="golink" href="#dan-${d.date.replace('.', '-')}">Raspored dana →</a></div>` : ''}</li>`; }).join('')}</ul>
-    ${D.flashNotes ? `<div class="sect">Prije puta</div><div class="md">${md(D.flashNotes)}</div>` : ''}
     <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj.split('\n').filter(l => /^\|/.test(l)).join('\n'))}</div></section>`;
 }
 function roNote() { return `<div class="ro">Kvačice i imena pamte se samo u ovom pregledniku, ne dijele se s ekipom.</div>`; }
@@ -678,7 +683,7 @@ let decFilter = 'sve';
 function odluke() {
   const all = D.decisions; const done = all.filter(x => (S.dec[x.id] || {}).done).length;
   const shown = all.filter(x => decFilter === 'sve' || (decFilter === 'otvoreno') !== !!(S.dec[x.id] || {}).done);
-  return `<section class="page"><h2>Odluke</h2><div class="md intro">${md(D.decisionsIntro)}</div>${roNote()}
+  return `<section class="page"><h2>TODO</h2><div class="md intro">${md(D.decisionsIntro)}</div>${roNote()}
     <div class="progress"><span>${done}/${all.length} riješeno</span><span class="bar2"><i style="width:${all.length ? done / all.length * 100 : 0}%"></i></span></div>
     <div class="filters">${['sve', 'otvoreno', 'riješeno'].map(f => `<button data-act="decf" data-f="${f}" aria-pressed="${decFilter === f}">${f}</button>`).join('')}</div>
     <div class="list">${shown.map(x => { const i = x.date ? dayIdx(x.date) : -1;
@@ -713,7 +718,7 @@ function info() {
 }
 
 /* ---------- shell ---------- */
-const TABS = [['pregled', 'Itinerar'], ['dani', 'Raspored'], ['odluke', 'Odluke'], ['rezervacije', 'Rezervacije'], ['info', 'Info']];
+const TABS = [['pregled', 'Itinerar'], ['dani', 'Raspored'], ['odluke', 'TODO'], ['rezervacije', 'Rezervacije'], ['info', 'Info']];
 function render() {
   const openDetails = [...document.querySelectorAll('#main details')].map(x => x.open);
   const decOpen = D.decisions.filter(x => !(S.dec[x.id] || {}).done).length;
@@ -729,6 +734,7 @@ function render() {
     return head + `<button style="--cc:${c.c}" data-act="go" data-i="${i}" aria-current="${i === cur}"><span class="rtx"><span class="rd">${esc(dp.wd)} ${esc(dp.dt)}</span><span class="rt">${inline(dp.title)}</span></span></button>`; }).join('');
   document.getElementById('layout').className = 'layout' + (tab === 'dani' ? ' days' : '');
   const main = document.getElementById('main');
+  main.classList.toggle('anim', animNext); animNext = false;
   main.innerHTML = tab === 'dani' ? dayView() : tab === 'pregled' ? pregled() : tab === 'odluke' ? odluke() : tab === 'rezervacije' ? rezervacije() : info();
   const nd = [...main.querySelectorAll('details')];
   if (nd.length === openDetails.length) nd.forEach((x, i) => x.open = openDetails[i]);
@@ -738,7 +744,7 @@ function scrollPillIntoView() {
   if (p) p.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
 function go(i) {
-  cur = i; tab = 'dani'; openSlots.clear(); qOpen = null; store.set('day', i); store.set('tab', tab);
+  animNext = true; cur = i; tab = 'dani'; openSlots.clear(); qOpen = null; store.set('day', i); store.set('tab', tab);
   history.replaceState(null, '', '#dan-' + days[i].date.replace('.', '-'));
   render(); scrollPillIntoView(); window.scrollTo({ top: 0 });
 }
@@ -746,7 +752,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('a[href]')) return;
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act; const d = days[cur];
-  if (a === 'tab') { tab = b.dataset.t; store.set('tab', tab); history.replaceState(null, '', '#' + (tab === 'dani' ? 'dan-' + days[cur].date.replace('.', '-') : tab)); render(); if (tab === 'dani') scrollPillIntoView(); window.scrollTo({ top: 0 }); }
+  if (a === 'tab') { animNext = true; tab = b.dataset.t; store.set('tab', tab); history.replaceState(null, '', '#' + (tab === 'dani' ? 'dan-' + days[cur].date.replace('.', '-') : tab)); render(); if (tab === 'dani') scrollPillIntoView(); window.scrollTo({ top: 0 }); }
   else if (a === 'go') go(+b.dataset.i);
   else if (a === 'flash') { const i = +b.dataset.i; const was = flashOpen.has(i); flashOpen.clear(); if (!was) flashOpen.add(i); render(); }
   else if (a === 'q') { qOpen = qOpen === b.dataset.k ? null : b.dataset.k; render(); }

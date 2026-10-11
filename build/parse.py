@@ -315,6 +315,24 @@ for day in data['days']:
     day['leftPlans3'] = day.pop('plans3')
     day['decisions'] = [x['id'] for x in decisions if x['date'] == day['date']]
 
+# Pre-trip notes from Dio 1 fold into the decisions list; a note that repeats an existing decision is merged into it.
+MERGE = {'Prijevoz Sokcho': 'Vlak', 'Rezervacije': None, 'Seoraksan': ('Čet 22.10.', 'Seoraksan: uspon i žičara'),
+         'Drone show': ('Sub 31.10.', 'Drone show i Halloween'), 'Let 2.': ('Pon 2.11.', 'Let KE937')}
+for line in data['flashNotes'].split('\n'):
+    m = re.match(r'^- \*\*(.+?):\*\*\s*(.*)$', line)
+    if not m: continue
+    label, text = m.group(1), m.group(2)
+    rule = next((v for k, v in MERGE.items() if label.startswith(k)), None)
+    if rule is None and label.startswith('Rezervacije'):
+        tgt = next(x for x in decisions if x['what'].startswith('Večer') and x['day'].startswith('Pet 30'))
+        tgt['todo'] += ' · Balon Flying Suwon ovisi o vremenu'
+        continue
+    if isinstance(rule, str):
+        tgt = next(x for x in decisions if rule in x['what'])
+        tgt['todo'] += ' · ' + text
+    elif rule:
+        day, what = rule
+        decisions.append({'id': 'd-' + slug(day + ' ' + what, 60), 'day': day, 'what': what, 'options': '—', 'todo': text, 'date': date_key(day)})
 data['decisions'] = decisions
 
 # --- Dio 4 and Dodaci
@@ -324,7 +342,7 @@ for p in parts:
     t = p['title']
     if t.startswith('DODATAK A'):
         rs = rows_of(p['lines'])[2:]
-        data['reservations'] = [{'id': 'r-' + slug(r[1], 60), 'when': r[0], 'what': r[1], 'detail': r[2], 'who': r[3]} for r in rs]
+        data['reservations'] = [{'id': 'r-' + slug(r[1], 60), 'when': r[0], 'what': r[1], 'detail': r[2], 'who': r[3]} for r in rs if r[0].strip() != '✅']
         data['reservationsIntro'] = clean_md([l for l in p['lines'] if not l.startswith('|')])
     elif t.startswith('DIO 4') or t.startswith('DODATAK'):
         data['info'].append({'id': slug(t.split('—')[0]), 'title': t, 'md': clean_md(p['lines'])})
