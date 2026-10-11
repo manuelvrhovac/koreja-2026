@@ -114,7 +114,7 @@ main { min-width: 0; }
   .layout.days .rail { display: block; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 58px); max-height: calc(100vh - 72px); overflow-y: auto; background: var(--navy); color: #fff; border-radius: var(--r); padding: 10px 8px 14px; box-shadow: var(--shadow); }
   .rail .city { font: 700 .7rem var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: rgb(255 255 255 / .6); padding: 12px 12px 4px; }
   .rail button { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; text-align: left; border: 0; background: none; padding: 6px 10px; border-radius: 9px; cursor: pointer; color: #fff; width: 100%; position: relative; }
-  .rail button::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--cc); border: 2px solid #fff; margin-top: 5px; box-shadow: 0 0 0 2px var(--navy); }
+  .rail button::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--cc); border: 2px solid #fff; margin-top: 5px; box-shadow: 0 0 0 2px var(--navy); }
   .rail button::after { content: ""; position: absolute; left: 16px; top: 22px; bottom: -8px; width: 2px; background: rgb(255 255 255 / .18); }
   .rail button:last-child::after { display: none; }
   .rail button:hover { background: rgb(255 255 255 / .08); }
@@ -279,7 +279,7 @@ a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .
 .flash { list-style: none; padding: 0; margin: 0; display: grid; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); position: relative; padding-block: 4px; }
 .flash::before { content: ""; position: absolute; left: 25px; top: 14px; bottom: 14px; width: 2px; background: var(--line); }
 .flash > li > button { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; padding: 12px 14px 12px 46px; background: none; border: 0; text-align: left; width: 100%; cursor: pointer; position: relative; border-radius: 10px; }
-.flash > li > button::before { content: ""; position: absolute; left: 19px; top: 17px; width: 10px; height: 10px; border-radius: 50%; background: var(--cc); border: 2px solid var(--surface); }
+.flash > li > button::before { content: ""; position: absolute; left: 19px; top: 17px; width: 14px; height: 14px; border-radius: 50%; background: var(--cc); border: 2px solid var(--surface); }
 .flash .fd { font: 800 1rem/1.25 var(--f-display); color: var(--cc); letter-spacing: .03em; }
 .flash .fd small { display: block; font-size: .72rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
 .flash .ft { font-size: .9rem; font-weight: 600; }
