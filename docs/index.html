@@ -313,6 +313,13 @@ a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .
 .ro { font-size: .82rem; color: var(--muted); background: var(--sunk); padding: 8px 12px; border-radius: 10px; margin-bottom: 12px; }
 .linkday { border: 0; background: none; padding: 0; color: var(--accent); font: 700 .74rem var(--f-display); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
+/* today */
+.today { display: inline-block; font: 700 .66rem var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ok); background: var(--ok-soft); border-radius: 999px; padding: 1px 7px; vertical-align: middle; white-space: nowrap; }
+.dayline .today { flex: none; }
+.flash > li.today > button { background: var(--ok-soft); border-radius: 10px; }
+.dpill[data-today="true"] { box-shadow: 0 0 0 2px var(--ok); }
+.dpill[data-today="true"] .m::after { content: " 📍"; }
+.rail button[data-today="true"] .rt::after { content: " 📍"; }
 @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes grow { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 main.anim > * { animation: fadein .22s ease-out both; }
@@ -448,7 +455,16 @@ const store = {
 const days = D.days;
 const dayIdx = date => days.findIndex(d => d.date === date);
 let tab = store.get('tab', 'pregled');
-let cur = Math.max(0, Math.min(days.length - 1, store.get('day', 0)));
+function todayIdx() {
+  const [y, m, dd] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-').map(Number);
+  const n = (mo, d) => (mo - 10) * 31 + d;
+  const t = (y < 2026 || (y === 2026 && m < 10)) ? -1 : y > 2026 ? 999 : n(m, dd);
+  let idx = 0;
+  days.forEach((d, i) => { const [d1, m1] = d.date.split('.').map(Number); if (n(m1, d1) <= t) idx = i; });
+  return idx;
+}
+const TODAY = todayIdx();
+let cur = TODAY;
 const planView = store.get('planView', {});
 const openSlots = new Set();
 let qOpen = null;
@@ -637,7 +653,7 @@ function dayView() {
   ].filter(([k]) => panels[k]);
   if (qOpen && !panels[qOpen]) qOpen = null;
   let h = `<article style="--cc:${city.c}">
-  <h2 class="dayline"><span class="dot"></span><span class="dn">Dan ${dayNo(cur)}</span><span class="dtt">${inline(dp.title)}</span></h2>
+  <h2 class="dayline"><span class="dot"></span><span class="dn">Dan ${dayNo(cur)}</span><span class="dtt">${inline(dp.title)}</span>${cur === TODAY ? '<span class="today">📍 danas</span>' : ''}</h2>
   <div class="qlist">${qlabels.map(([k, e, t]) => `<button class="qbtn" data-act="q" data-k="${k}" aria-expanded="${qOpen === k}"><span class="qe">${e}</span><span class="qs">${esc(t)}</span><span class="chev">›</span></button>${qOpen === k ? `<div class="qpanel stack">${panels[k]}</div>` : ''}`).join('')}</div>
   <div class="stack">`;
   if (d.plans.length) {
@@ -674,7 +690,7 @@ function pregled() {
       const lab = d.flash ? d.flash.label : ''; const m = lab.match(/·\s*(.+?)\s+—\s+(.+)$/);
       const short = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : dp.title;
       const open = flashOpen.has(i);
-      return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}</span><span class="chev">›</span></button>
+      return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}${i === TODAY ? ' today' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}${i === TODAY ? ' <span class="today">📍 danas</span>' : ''}</span><span class="chev">›</span></button>
         ${open ? `<div class="fx" data-act="flash" data-i="${i}">${d.flash ? bullets(d.flash.text) : ''}<a class="golink" href="#dan-${d.date.replace('.', '-')}">Raspored dana →</a></div>` : ''}</li>`; }).join('')}</ul>
     <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj.split('\n').filter(l => /^\|/.test(l)).join('\n'))}</div></section>`;
 }
@@ -727,11 +743,11 @@ function render() {
   const strip = document.getElementById('strip');
   strip.hidden = tab !== 'dani';
   strip.innerHTML = days.map((d, i) => { const dp = dayParts(d);
-    return `<button class="dpill${isMove(d) ? ' move' : ''}" data-icon="${moveIcon(d)}" style="--cc:${cityOf(d).c}" data-act="go" data-i="${i}" aria-current="${i === cur}" aria-label="${esc(dp.wd + ' ' + dp.dt + ' ' + dp.title)}"><span class="w">${esc(dp.wd)}</span><span class="d">${dp.dt.split('.')[0]}</span><span class="m">${dp.dt.split('.')[1]}.</span></button>`; }).join('');
+    return `<button class="dpill${isMove(d) ? ' move' : ''}" data-icon="${moveIcon(d)}" style="--cc:${cityOf(d).c}" data-act="go" data-i="${i}" aria-current="${i === cur}" data-today="${i === TODAY}" aria-label="${esc(dp.wd + ' ' + dp.dt + ' ' + dp.title)}"><span class="w">${esc(dp.wd)}</span><span class="d">${dp.dt.split('.')[0]}</span><span class="m">${dp.dt.split('.')[1]}.</span></button>`; }).join('');
   let lastCity = null;
   document.getElementById('rail').innerHTML = days.map((d, i) => { const dp = dayParts(d); const c = cityOf(d);
     const head = d.city !== lastCity ? `<div class="city" style="--cc:${c.c}">${c.short}</div>` : ''; lastCity = d.city;
-    return head + `<button style="--cc:${c.c}" data-act="go" data-i="${i}" aria-current="${i === cur}"><span class="rtx"><span class="rd">${esc(dp.wd)} ${esc(dp.dt)}</span><span class="rt">${inline(dp.title)}</span></span></button>`; }).join('');
+    return head + `<button style="--cc:${c.c}" data-act="go" data-i="${i}" aria-current="${i === cur}" data-today="${i === TODAY}"><span class="rtx"><span class="rd">${esc(dp.wd)} ${esc(dp.dt)}</span><span class="rt">${inline(dp.title)}</span></span></button>`; }).join('');
   document.getElementById('layout').className = 'layout' + (tab === 'dani' ? ' days' : '');
   const main = document.getElementById('main');
   main.classList.toggle('anim', animNext); animNext = false;
