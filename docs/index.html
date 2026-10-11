@@ -84,6 +84,9 @@ strong { font-weight: 700; }
 
 
 /* ---------- sticky bar ---------- */
+.bar .wrap { position: relative; }
+.now { position: absolute; right: 10px; top: 9px; font: 600 .7rem/1.6 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--bg); padding-left: 10px; box-shadow: -8px 0 8px var(--bg); pointer-events: none; }
+.tabs { padding-right: 84px; }
 .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); box-shadow: 0 1px 0 var(--line); }
 .tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; padding-block: 6px 4px; }
 .tabs::-webkit-scrollbar, .strip::-webkit-scrollbar, .seg::-webkit-scrollbar { display: none; }
@@ -330,6 +333,7 @@ main.anim > * { animation: fadein .22s ease-out both; }
 <div class="bar">
   <div class="wrap">
     <nav class="tabs" role="tablist" id="tabs"></nav>
+    <span class="now" id="now"></span>
     <div class="strip" id="strip"></div>
   </div>
 </div>
@@ -462,6 +466,11 @@ function todayIdx() {
   return idx;
 }
 const TODAY = todayIdx();
+(function showNow() {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', weekday: 'short', day: 'numeric', month: 'numeric' }).formatToParts(new Date()).map(x => [x.type, x.value]));
+  const wd = { Mon: 'Pon', Tue: 'Uto', Wed: 'Sri', Thu: 'Čet', Fri: 'Pet', Sat: 'Sub', Sun: 'Ned' }[p.weekday] || p.weekday;
+  document.getElementById('now').textContent = `${wd} ${p.day}.${p.month}.`;
+})();
 let cur = TODAY;
 const planView = store.get('planView', {});
 const openSlots = new Set();
