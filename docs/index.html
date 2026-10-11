@@ -314,12 +314,10 @@ a.nv { color: var(--accent); font: 800 .7rem var(--f-display); letter-spacing: .
 .linkday { border: 0; background: none; padding: 0; color: var(--accent); font: 700 .74rem var(--f-display); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
 /* today */
-.today { display: inline-block; font: 700 .66rem var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ok); background: var(--ok-soft); border-radius: 999px; padding: 1px 7px; vertical-align: middle; white-space: nowrap; }
-.dayline .today { flex: none; }
-.flash > li.today > button { background: var(--ok-soft); border-radius: 10px; }
-.dpill[data-today="true"] { box-shadow: 0 0 0 2px var(--ok); }
-.dpill[data-today="true"] .m::after { content: " 📍"; }
-.rail button[data-today="true"] .rt::after { content: " 📍"; }
+.today { font-size: .85em; }
+.dayline .today { flex: none; font-size: 1rem; }
+.dpill[data-today="true"] .m::after { content: " ⭐"; }
+.rail button[data-today="true"] .rt::after { content: " ⭐"; }
 @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes grow { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 main.anim > * { animation: fadein .22s ease-out both; }
@@ -653,7 +651,7 @@ function dayView() {
   ].filter(([k]) => panels[k]);
   if (qOpen && !panels[qOpen]) qOpen = null;
   let h = `<article style="--cc:${city.c}">
-  <h2 class="dayline"><span class="dot"></span><span class="dn">Dan ${dayNo(cur)}</span><span class="dtt">${inline(dp.title)}</span>${cur === TODAY ? '<span class="today">📍 danas</span>' : ''}</h2>
+  <h2 class="dayline"><span class="dot"></span><span class="dn">Dan ${dayNo(cur)}</span><span class="dtt">${inline(dp.title)}</span>${cur === TODAY ? '<span class="today" title="danas">⭐</span>' : ''}</h2>
   <div class="qlist">${qlabels.map(([k, e, t]) => `<button class="qbtn" data-act="q" data-k="${k}" aria-expanded="${qOpen === k}"><span class="qe">${e}</span><span class="qs">${esc(t)}</span><span class="chev">›</span></button>${qOpen === k ? `<div class="qpanel stack">${panels[k]}</div>` : ''}`).join('')}</div>
   <div class="stack">`;
   if (d.plans.length) {
@@ -690,7 +688,7 @@ function pregled() {
       const lab = d.flash ? d.flash.label : ''; const m = lab.match(/·\s*(.+?)\s+—\s+(.+)$/);
       const short = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : dp.title;
       const open = flashOpen.has(i);
-      return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}${i === TODAY ? ' today' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}${i === TODAY ? ' <span class="today">📍 danas</span>' : ''}</span><span class="chev">›</span></button>
+      return `<li style="--cc:${c.c}" class="${open ? 'open' : ''}${i === TODAY ? ' today' : ''}"><button data-act="flash" data-i="${i}" aria-expanded="${open}"><span class="fd">${dp.wd} ${dp.dt}<small>${m ? esc(m[1]) : c.short}</small></span><span class="ft">${inline(short)}${i === TODAY ? ' <span class="today" title="danas">⭐</span>' : ''}</span><span class="chev">›</span></button>
         ${open ? `<div class="fx" data-act="flash" data-i="${i}">${d.flash ? bullets(d.flash.text) : ''}<a class="golink" href="#dan-${d.date.replace('.', '-')}">Raspored dana →</a></div>` : ''}</li>`; }).join('')}</ul>
     <div class="sect">Smještaj</div><div class="md">${md(D.smjestaj.split('\n').filter(l => /^\|/.test(l)).join('\n'))}</div></section>`;
 }
